@@ -19,11 +19,11 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 18
-      - name: Change to frontend directory
-        run: cd frontend
       - name: Install dependencies
+        working-directory: ./frontend
         run: npm install
       - name: Build
+        working-directory: ./frontend
         run: npm run build
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v2
