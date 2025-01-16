@@ -113,7 +113,9 @@ const averageTemp = ref(0);
 
 const updateCpuUsage = async () => {
   try {
-    const response = await fetch("http://localhost:1910/api/usage/cpu");
+    const response = await fetch(
+      "http://kwu-knet.duckdns.org:1910/api/usage/cpu"
+    );
     const data = await response.json();
 
     const now = new Date();

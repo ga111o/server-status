@@ -85,7 +85,9 @@ const usedMemory = ref(0);
 
 const updateMemoryUsage = async () => {
   try {
-    const response = await fetch("http://localhost:1910/api/usage/memory");
+    const response = await fetch(
+      "http://kwu-knet.duckdns.org:1910/api/usage/memory"
+    );
     const data = await response.json();
 
     const now = new Date();

@@ -34,7 +34,9 @@ const cpuInfo = ref({});
 
 const fetchCpuInfo = async () => {
   try {
-    const response = await fetch("http://localhost:1910/api/info/cpu");
+    const response = await fetch(
+      "http://kwu-knet.duckdns.org:1910/api/info/cpu"
+    );
     cpuInfo.value = await response.json();
   } catch (error) {
     console.error("Error fetching CPU info:", error);

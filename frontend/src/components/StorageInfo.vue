@@ -34,7 +34,9 @@ const storageInfo = ref([]);
 
 const fetchStorageInfo = async () => {
   try {
-    const response = await fetch("http://localhost:1910/api/usage/storage");
+    const response = await fetch(
+      "http://kwu-knet.duckdns.org:1910/api/usage/storage"
+    );
     const data = await response.json();
     storageInfo.value = data.storage_info;
   } catch (error) {

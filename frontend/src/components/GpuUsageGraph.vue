@@ -101,7 +101,9 @@ const initializeChartData = (gpu) => {
 
 const updateGpuInfo = async () => {
   try {
-    const response = await fetch("http://localhost:1910/api/info/gpu");
+    const response = await fetch(
+      "http://kwu-knet.duckdns.org:1910/api/info/gpu"
+    );
     const data = await response.json();
     gpuInfo.value = data.gpu_info;
 
