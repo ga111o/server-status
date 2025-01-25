@@ -9,6 +9,8 @@
         <span class="stat-label">Used Memory:</span>
         <span class="stat-value">{{ usedMemory }} GB</span>
       </div>
+    </div>
+    <div class="usage-stats">
       <div class="stat-item">
         <span class="stat-label">Memory Usage:</span>
         <span class="stat-value">{{ currentUsage }}%</span>
