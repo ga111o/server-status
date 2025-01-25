@@ -1,42 +1,76 @@
-name: Deploy to GitHub Pages
+name: Build and Deploy Docker Images
 
 on:
   push:
-    branches: ["main"]
-
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+    branches:
+      - main
 
 jobs:
-  build:
+  build-and-push-backend:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-      - name: Set up Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-      - name: Install dependencies
-        working-directory: ./frontend
-        run: npm install
-      - name: Build
-        working-directory: ./frontend
-        run: npm run build
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v2
-        with:
-          path: ./frontend/dist
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build and tag Backend Docker image
+        run: |
+          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest -f backend/Dockerfile backend/
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest
+
+      - name: Push Backend Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest
+
+  build-and-push-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Log in to Docker Hub
+        run: |
+          echo "${{ secrets.DOCKER_HUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+      - name: Build and tag Frontend Docker image
+        run: |
+          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest -f frontend/Dockerfile frontend/
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest
+
+      - name: Push Frontend Docker image
+        run: |
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest
 
   deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    needs: build
+    needs: [build-and-push-backend, build-and-push-frontend]
+
     steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v2
+      - name: Install SSH and sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client sshpass
+
+      - name: Deploy to Server
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_ID }}@${{ secrets.SSH_SERVER_IP }} << 'EOF'
+            # Backend deployment
+            BE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest"
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker pull $BE_IMAGE
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker stop awake-backend || true
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker rm awake-backend || true
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
+
+            # Frontend deployment
+            FE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest"
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker pull $FE_IMAGE
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker stop awake-frontend || true
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker rm awake-frontend || true
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
+
+            # Cleanup
+            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker system prune -af
+          EOF
