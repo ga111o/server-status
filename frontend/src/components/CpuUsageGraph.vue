@@ -9,6 +9,8 @@
         <span class="stat-label">CPU Temperature:</span>
         <span class="stat-value">{{ currentTemp }}°C</span>
       </div>
+    </div>
+    <div class="usage-stats">
       <div class="stat-item">
         <span class="stat-label">Avg Usage:</span>
         <span class="stat-value">{{ averageUsage }}%</span>
@@ -189,6 +191,7 @@ onUnmounted(() => {
 
 .usage-stats {
   display: flex;
+  width: 400px;
   justify-content: center;
   gap: 0.5rem;
   margin-bottom: 1rem;
