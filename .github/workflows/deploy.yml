@@ -59,18 +59,18 @@ jobs:
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_ID }}@${{ secrets.SSH_SERVER_IP }} << 'EOF'
             # Backend deployment
             BE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest"
-            echo "sudo -S docker pull $BE_IMAGE
-            echo "sudo -S docker stop awake-backend || true
-            echo "sudo -S docker rm awake-backend || true
-            echo "sudo -S docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
+            sudo docker pull $BE_IMAGE
+            sudo docker stop awake-backend || true
+            sudo docker rm awake-backend || true
+            sudo docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
 
             # Frontend deployment
             FE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest"
-            echo "sudo -S docker pull $FE_IMAGE
-            echo "sudo -S docker stop awake-frontend || true
-            echo "sudo -S docker rm awake-frontend || true
-            echo "sudo -S docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
+            sudo docker pull $FE_IMAGE
+            sudo docker stop awake-frontend || true
+            sudo docker rm awake-frontend || true
+            sudo docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
 
             # Cleanup
-            echo "sudo -S docker system prune -af
+            sudo docker system prune -af
           EOF
