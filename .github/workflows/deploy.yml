@@ -18,12 +18,12 @@ jobs:
 
       - name: Build and tag Backend Docker image
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest -f backend/Dockerfile backend/
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest
+          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-backend:latest -f backend/Dockerfile backend/
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-backend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-backend:latest
 
       - name: Push Backend Docker image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-backend:latest
 
   build-and-push-frontend:
     runs-on: ubuntu-latest
@@ -37,12 +37,12 @@ jobs:
 
       - name: Build and tag Frontend Docker image
         run: |
-          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest -f frontend/Dockerfile frontend/
-          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest
+          docker build --no-cache -t ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-frontend:latest -f frontend/Dockerfile frontend/
+          docker tag ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-frontend:latest ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-frontend:latest
 
       - name: Push Frontend Docker image
         run: |
-          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest
+          docker push ${{ secrets.DOCKER_HUB_USERNAME }}/server-status-frontend:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -58,18 +58,18 @@ jobs:
         run: |
           sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_ID }}@${{ secrets.SSH_SERVER_IP }} << 'EOF'
             # Backend deployment
-            BE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest"
+            BE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/server-status-backend:latest"
             sudo docker pull $BE_IMAGE
-            sudo docker stop awake-backend || true
-            sudo docker rm awake-backend || true
-            sudo docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
+            sudo docker stop server-status-backend || true
+            sudo docker rm server-status-backend || true
+            sudo docker run -d --name server-status-backend -p 1910:1910 $BE_IMAGE
 
             # Frontend deployment
-            FE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest"
+            FE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/server-status-frontend:latest"
             sudo docker pull $FE_IMAGE
-            sudo docker stop awake-frontend || true
-            sudo docker rm awake-frontend || true
-            sudo docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
+            sudo docker stop server-status-frontend || true
+            sudo docker rm server-status-frontend || true
+            sudo docker run -d --name server-status-frontend -p 1232:1232 $FE_IMAGE
 
             # Cleanup
             sudo docker system prune -af
