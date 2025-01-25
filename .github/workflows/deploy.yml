@@ -56,21 +56,21 @@ jobs:
 
       - name: Deploy to Server
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_ID }}@${{ secrets.SSH_SERVER_IP }} << 'EOF'
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p ${{ secrets.SSH_PORT }} ${{ secrets.SSH_ID }}@${{ secrets.SSH_SERVER_IP }} << 'EOF'
             # Backend deployment
             BE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-backend:latest"
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker pull $BE_IMAGE
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker stop awake-backend || true
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker rm awake-backend || true
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
+            echo "sudo -S docker pull $BE_IMAGE
+            echo "sudo -S docker stop awake-backend || true
+            echo "sudo -S docker rm awake-backend || true
+            echo "sudo -S docker run -d --name awake-backend -p 1910:1910 $BE_IMAGE
 
             # Frontend deployment
             FE_IMAGE="${{ secrets.DOCKER_HUB_USERNAME }}/awake-frontend:latest"
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker pull $FE_IMAGE
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker stop awake-frontend || true
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker rm awake-frontend || true
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
+            echo "sudo -S docker pull $FE_IMAGE
+            echo "sudo -S docker stop awake-frontend || true
+            echo "sudo -S docker rm awake-frontend || true
+            echo "sudo -S docker run -d --name awake-frontend -p 1232:1232 $FE_IMAGE
 
             # Cleanup
-            echo "${{ secrets.SSH_PASSWORD }}" | sudo -S docker system prune -af
+            echo "sudo -S docker system prune -af
           EOF
