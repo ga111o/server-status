@@ -10,6 +10,8 @@
         <span class="stat-label">Temperature</span>
         <span class="stat-value">{{ gpu.temperature_c }}°C</span>
       </div>
+    </div>
+    <div class="usage-stats">
       <div class="stat-item">
         <span class="stat-label">Memory Usage</span>
         <span class="stat-value"
