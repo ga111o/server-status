@@ -23,12 +23,9 @@ def get_cpu_usage():
     
     avg_cpu_percent = statistics.mean(cpu_percentages)
     try:
-        temperatures = psutil.sensors_temperatures()
-        if 'coretemp' in temperatures:
-            cpu_temp = statistics.mean([temp.current for temp in temperatures['coretemp']])
-        else:
-            cpu_temp = None
-    except AttributeError:
+        with open('/sys/class/hwmon/hwmon2/temp1_input', 'r') as f:
+            cpu_temp = float(f.read()) / 1000
+    except (FileNotFoundError, ValueError):
         cpu_temp = None
     
     return {
